@@ -10,8 +10,17 @@ COPY pom.xml .
 # Dependencies downloaden (wird gecacht wenn sich pom.xml nicht ändert)
 RUN mvn dependency:go-offline -B
 
-# Source Code kopieren
-COPY src ./src
+# Korrekte Java Ordnerstruktur erstellen
+RUN mkdir -p src/main/java/de/russkaya/bot
+
+# Source Code kopieren - flexibel für verschiedene Strukturen
+# Prüfe zuerst ob src Ordner existiert, dann kopiere entsprechend
+COPY . /temp/
+RUN if [ -d "/temp/src" ]; then \
+        cp -r /temp/src ./; \
+    else \
+        cp /temp/*.java src/main/java/de/russkaya/bot/ 2>/dev/null || echo "No .java files in root"; \
+    fi
 
 # Bot kompilieren
 RUN mvn clean package -DskipTests
