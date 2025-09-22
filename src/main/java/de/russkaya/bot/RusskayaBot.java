@@ -578,7 +578,13 @@ public class RusskayaBot extends ListenerAdapter {
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (event.getUser().isBot()) return;
         
-        String emoji = event.getReaction().getEmoji().asUnicode().getAsString();
+        // Sicherere Emoji-Behandlung
+        String emoji = null;
+        if (event.getReaction().getEmoji().getType() == net.dv8tion.jda.api.entities.emoji.Emoji.Type.UNICODE) {
+            emoji = event.getReaction().getEmoji().asUnicode().getAsString();
+        }
+        
+        if (emoji == null) return;
         
         // Reaktion auf Dünger-Erinnerungen
         if ("✅".equals(emoji)) {
