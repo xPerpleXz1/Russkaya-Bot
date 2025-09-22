@@ -1,4 +1,3 @@
-
 package de.russkaya.bot;
 
 import net.dv8tion.jda.api.JDA;
@@ -110,8 +109,10 @@ public class RusskayaBot extends ListenerAdapter {
             )
         """;
         
-        database.executeUpdate(createPlantsTable);
-        database.executeUpdate(createSolarTable);
+        try (Statement stmt = database.createStatement()) {
+            stmt.executeUpdate(createPlantsTable);
+            stmt.executeUpdate(createSolarTable);
+        }
         
         System.out.println("✅ Datenbank initialisiert");
     }
@@ -506,7 +507,7 @@ public class RusskayaBot extends ListenerAdapter {
                     .setTimestamp(LocalDateTime.now());
             
             channel.sendMessageEmbeds(embed.build()).queue(message -> {
-                message.addReaction("✅").queue(); // Reaktion für "erledigt"
+                message.addReaction(net.dv8tion.jda.api.entities.emoji.Emoji.fromUnicode("✅")).queue(); // Reaktion für "erledigt"
             });
         }
     }
@@ -532,7 +533,7 @@ public class RusskayaBot extends ListenerAdapter {
                 .setTimestamp(LocalDateTime.now());
         
         channel.sendMessageEmbeds(embed.build()).queue(message -> {
-            message.addReaction("🔧").queue(); // Reaktion für "repariert"
+            message.addReaction(net.dv8tion.jda.api.entities.emoji.Emoji.fromUnicode("🔧")).queue(); // Reaktion für "repariert"
         });
     }
     
@@ -559,13 +560,13 @@ public class RusskayaBot extends ListenerAdapter {
     }
     
     private void cleanupOldReminders() {
-        try {
+        try (Statement stmt = database.createStatement()) {
             // Alte abgeschlossene Einträge löschen (älter als 7 Tage)
             String cleanupSql = "DELETE FROM plants WHERE status = 'harvested' AND harvested_at < datetime('now', '-7 days')";
-            database.executeUpdate(cleanupSql);
+            stmt.executeUpdate(cleanupSql);
             
             cleanupSql = "DELETE FROM solar_panels WHERE status = 'collected' AND collected_at < datetime('now', '-7 days')";
-            database.executeUpdate(cleanupSql);
+            stmt.executeUpdate(cleanupSql);
             
             System.out.println("✅ Alte Einträge bereinigt");
         } catch (SQLException e) {
@@ -577,7 +578,7 @@ public class RusskayaBot extends ListenerAdapter {
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (event.getUser().isBot()) return;
         
-        String emoji = event.getReaction().getEmoji().getName();
+        String emoji = event.getReaction().getEmoji().asUnicode().getAsString();
         
         // Reaktion auf Dünger-Erinnerungen
         if ("✅".equals(emoji)) {
