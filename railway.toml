@@ -1,0 +1,14 @@
+[build]
+builder = "dockerfile"
+
+[deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "always"
+
+[env]
+# Diese Werte müssen in Railway gesetzt werden
+BOT_TOKEN = ""
+DATABASE_URL = ""
+PLANT_CHANNEL_ID = ""
+SOLAR_CHANNEL_ID = ""
