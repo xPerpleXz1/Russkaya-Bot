@@ -578,10 +578,10 @@ public class RusskayaBot extends ListenerAdapter {
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
         if (event.getUser().isBot()) return;
         
-        // Sicherere Emoji-Behandlung
+        // Sicherere Emoji-Behandlung für JDA 5.x
         String emoji = null;
         if (event.getReaction().getEmoji().getType() == net.dv8tion.jda.api.entities.emoji.Emoji.Type.UNICODE) {
-            emoji = event.getReaction().getEmoji().asUnicode().getAsString();
+            emoji = event.getReaction().getEmoji().asUnicode().getName();
         }
         
         if (emoji == null) return;
